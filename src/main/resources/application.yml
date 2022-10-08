@@ -1,0 +1,47 @@
+server:
+  port: 8000
+
+spring:
+  main:
+    web-application-type: reactive
+  application:
+    name: gateway
+  cloud:
+    gateway:
+      routes:
+        - id: courses
+          uri: lb:http://courses
+          predicates:
+            - Path=/**
+          filters:
+            - StripPrefix=1
+        - id: ratings
+          uri: lb://ratings
+          predicates:
+            - Path=/**
+          filters:
+            - StripPrefix=1
+info:
+  app:
+    name: ${spring.application.name}
+
+eureka:
+  client:
+    registerWithEureka: true
+  server:
+    waitTimeInMsWhenSyncEmpty: 0
+  serviceUrl:
+    defaultZone: ${EUREKA_SERVER:http://localhost:8671/eureka}
+  healthcheck:
+    enabled: true
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+          - mappings
+          - env
+          - health
+          - info
