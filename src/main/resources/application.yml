@@ -1,6 +1,11 @@
 server:
   port: 8000
 
+#https://stackoverflow.com/questions/54117061/springcloudgateway-log-incoming-request-url-and-corresponding-route-uri
+logging:
+  level:
+    org.springframework.cloud.gateway.handler.RoutePredicateHandlerMapping: TRACE
+
 spring:
   main:
     web-application-type: reactive
@@ -8,17 +13,28 @@ spring:
     name: gateway
   cloud:
     gateway:
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedHeaders: "*"
+            allowedMethods: "*"
+        add-to-simple-url-handler-mapping: true
+      discovery:
+        locator:
+          lowerCaseServiceId: true
       routes:
-        - id: courses
-          uri: lb:http://courses
+        - id: course-service
+          uri: lb://course-service
           predicates:
-            - Path=/**
+            - Path=/api/courses/**
           filters:
+            #            - RewritePath=/api(?<segment>/?.*), $\{segment}
             - StripPrefix=1
-        - id: ratings
-          uri: lb://ratings
+        - id: rating-service
+          uri: lb://rating-service
           predicates:
-            - Path=/**
+            - Path=/api/ratings/**
           filters:
             - StripPrefix=1
 info:
